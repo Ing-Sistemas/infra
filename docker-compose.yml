@@ -1,56 +1,5 @@
+#do not merge to main branch
 services:
-  snippet-service:
-    container_name: "snippet-service-infra"
-    image: ghcr.io/ing-sistemas/snippet-service:dev@sha256:169d40534d303942e67e63a1efe67a603fb8eeac563e6f81b0928e59ea715464
-    ports:
-      - "8081:8081"
-    env_file:
-        - .env
+      # asset
 
-  snippet-db:
-    container_name: "snippet-db-infra"
-    image: postgres:12
-    ports:
-      - "5433:5433"
-    env_file:
-        - .env
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB_SNIPPET}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  permission-service:
-    container_name: "permission-service-infra"
-    image: ghcr.io/ing-sistemas/permission-service:dev@sha256:235c0ac7e1fcaf357d76ff2dee89f32c805daff99dade1aee0e8e0bbb7b1c419
-    ports:
-      - "8080:8080"
-    env_file:
-        - .env
-
-  permission-db:
-    container_name: "permission-db-infra"
-    image: postgres:12
-    ports:
-      - "5432:5432"
-    env_file:
-        - .env
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB_PERMISSION}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  printscript-service:
-    container_name: "printscript-service-infra"
-    image: ghcr.io/ing-sistemas/printscript-service:dev@sha256:0cdfb14c5d366e0239402ea8c834c282dc07adcc25857a48a1f48c8563403448
-    ports:
-      - "8082:8082"
-    env_file:
-        - .env
-
-
-volumes:
-  pgdata:
+      #redis
