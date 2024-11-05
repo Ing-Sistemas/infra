@@ -3,14 +3,11 @@ version: '3'
 services:
   snippet-service:
     container_name: "snippet-service-infra"
-    #image: nginx
     image: ghcr.io/ing-sistemas/snippet-service:dev@sha256:169d40534d303942e67e63a1efe67a603fb8eeac563e6f81b0928e59ea715464
     ports:
       - "8081:8081"
     env_file:
         - .env
-    volumes:
-      - ./snippet-service/:/usr/share/nginx/html:ro
 
   snippet-db:
     container_name: "snippet-db-infra"
@@ -28,14 +25,11 @@ services:
 
   permission-service:
     container_name: "permission-service-infra"
-    #image: nginx
     image: ghcr.io/ing-sistemas/permission-service:dev@sha256:235c0ac7e1fcaf357d76ff2dee89f32c805daff99dade1aee0e8e0bbb7b1c419
     ports:
       - "8080:8080"
     env_file:
         - .env
-    volumes:
-      - ./permission-service/:/usr/share/nginx/html:ro
 
   permission-db:
     container_name: "permission-db-infra"
@@ -53,14 +47,22 @@ services:
 
   printscript-service:
     container_name: "printscript-service-infra"
-    #image: nginx
     image: ghcr.io/ing-sistemas/printscript-service:dev@sha256:0cdfb14c5d366e0239402ea8c834c282dc07adcc25857a48a1f48c8563403448
     ports:
       - "8082:8082"
     env_file:
         - .env
+  nginx:
+    container_name: nginx
+    #restart:
+    image: nginx
+    ports:
+      - 80:80
+      - 443:443
     volumes:
-      - ./printscript-service/:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
 
   proxy:
     container_name: "reverse-proxy"
@@ -71,12 +73,11 @@ services:
       - ./static/:/usr/share/nginx/html:ro
       - ./conf.d:/etc/nginx/conf.d:ro
 
-#idk si esto esta bien/util pero esta en el repo de ejemplo
-  my-server:
-    container_name: "my-server"
-    build: ./server
-    ports:
-      - 8088:80
 
-volumes:
-  pgdata:
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email {} -d {print-script} --agree-tos
