@@ -52,17 +52,26 @@ services:
       - "8082:8082"
     env_file:
         - .env
-  nginx:
-    container_name: nginx
-    #restart:
-    image: nginx
+
+  ui:
+    container_name: "ui-infra"
+    image:
     ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+        - "8083:8083"
+    env_file:
+      - .env
+
+#  nginx:
+#    container_name: nginx
+#    restart:
+#    image: nginx
+#    ports:
+#      - 80:80
+#      - 443:443
+#    volumes:
+#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+#      - ./certbot/conf:/etc/letsencrypt
+#      - ./certbot/www:/var/www/certbot
 
   proxy:
     container_name: "reverse-proxy"
@@ -74,10 +83,10 @@ services:
       - ./conf.d:/etc/nginx/conf.d:ro
 
 
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot --force-renewal --email {} -d {print-script} --agree-tos
+#  certbot:
+#    image: certbot/certbot
+#    container_name: certbot
+#    volumes:
+#      - ./certbot/conf:/etc/letsencrypt
+#      - ./certbot/www:/var/www/certbot
+#    command: certonly --webroot -w /var/www/certbot --force-renewal --email {} -d {print-script} --agree-tos
