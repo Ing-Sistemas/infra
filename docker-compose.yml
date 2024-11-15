@@ -3,51 +3,51 @@ version: '3'
 services:
   snippet-service:
     container_name: "snippet-service-infra"
-    image: ghcr.io/ing-sistemas/snippet-service:latest
+    image: ghcr.io/ing-sistemas/snippet-service:dev
     ports:
       - "8081:8081"
     env_file:
         - .env
 
-  #snippet-db:
-  #  container_name: "snippet-db-infra"
-  #  image: postgres:12
-  #  ports:
-  #    - "5433:5433"
-  #  env_file:
-  #      - .env
-  #  environment:
-  #    POSTGRES_DB: ${POSTGRES_DB_SNIPPET}
-  #    POSTGRES_USER: ${POSTGRES_USER}
-  #    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #  volumes:
-  #    - pgdata:/var/lib/postgresql/data
+  snippet-db:
+    container_name: "snippet-db-infra"
+    image: postgres:12
+    ports:
+      - "5433:5433"
+    env_file:
+        - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_SNIPPET}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - snippetdata:/var/lib/postgresql/data/snippet
 
   permission-service:
     container_name: "permission-service-infra"
-    image: ghcr.io/ing-sistemas/permission-service:latest
+    image: ghcr.io/ing-sistemas/permission-service:dev
     ports:
       - "8080:8080"
     env_file:
         - .env
 
-  #permission-db:
-  #  container_name: "permission-db-infra"
-  #  image: postgres:12
-  #  ports:
-  #    - "5432:5432"
-  #  env_file:
-  #      - .env
-  #  environment:
-  #    POSTGRES_DB: ${POSTGRES_DB_PERMISSION}
-  #    POSTGRES_USER: ${POSTGRES_USER}
-  #    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #  volumes:
-  #    - pgdata:/var/lib/postgresql/data
+  permission-db:
+    container_name: "permission-db-infra"
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    env_file:
+        - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_PERMISSION}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - permissiondata:/var/lib/postgresql/data/permission
 
   printscript-service:
     container_name: "printscript-service-infra"
-    image: ghcr.io/ing-sistemas/printscript-service:latest
+    image: ghcr.io/ing-sistemas/printscript-service:dev
     ports:
       - "8082:8082"
     env_file:
@@ -55,7 +55,7 @@ services:
 
   ui:
     container_name: "ui-infra"
-    image: ghcr.io/ing-sistemas/ui:latest
+    image: ghcr.io/ing-sistemas/ui:dev
     ports:
         - "8083:8083"
     env_file:
@@ -82,7 +82,10 @@ services:
       - ./static/:/usr/share/nginx/html:ro
       - ./conf.d:/etc/nginx/conf.d:ro
 
-
+volumes:
+  pgdata:
+  snippetdata:
+  permissiondata:
 #  certbot:
 #    image: certbot/certbot
 #    container_name: certbot
