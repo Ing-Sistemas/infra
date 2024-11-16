@@ -1,8 +1,60 @@
 #do not merge to main branch
       #redis
 services:
-  api:
-    container_name: "asset-service"
+  snippet-service:
+    container_name: "snippet-service-infra"
+    image: ghcr.io/ing-sistemas/snippet-service:dev-latest
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+
+  snippet-db:
+    container_name: "snippet-db-infra"
+    image: postgres:12
+    ports:
+      - "5433:5433"
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_SNIPPET}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  permission-service:
+    container_name: "permission-service-infra"
+    image: ghcr.io/ing-sistemas/permission-service:dev-latest
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+
+  permission-db:
+    container_name: "permission-db-infra"
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_PERMISSION}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  printscript-service:
+    container_name: "printscript-service-infra"
+    image: ghcr.io/ing-sistemas/printscript-service:dev-latest
+    ports:
+      - "8082:8082"
+    env_file:
+      - .env
+
+  azure:
+    container_name: "asset-service-infra"
     image: ghcr.io/austral-ingsis/snippet-asset-service:latest
     ports:
       - "${ASSET_PORT}:${ASSET_PORT}"
@@ -13,7 +65,7 @@ services:
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
-    container_name: "azurite"
+    container_name: "azurite-infra"
     hostname: azurite
     restart: always
     ports:
@@ -25,12 +77,13 @@ services:
 
 
   redis:
-      container_name: "event-bus"
+      container_name: "event-bus-infra"
       image: redis:6-alpine
       
       ports:
            - "6379:6379"
 
 volumes:
-    blob:
-        external: false
+  pgdata:
+  blob:
+      external: false
