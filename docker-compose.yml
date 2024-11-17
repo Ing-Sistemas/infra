@@ -22,7 +22,7 @@ services:
       - .env
     environment:
       SNIPPET_DB_HOST: ${SNIPPET_DB_HOST}
-      SNIPPET_PORT: ${SNIPPET_SERVICE_PORT}
+      SNIPPET_PORT: ${SNIPPET_PORT}
     depends_on:
       - snippet-db
       - redis
