@@ -1,35 +1,33 @@
-version: '3'
+version: "3.9"
 
 services:
-  snippet-service:
-    container_name: "snippet-service-infra"
-    image: ghcr.io/ing-sistemas/snippet-service:dev
-    ports:
-      - "8081:8081"
-    env_file:
-        - .env
-
   snippet-db:
     container_name: "snippet-db-infra"
     image: postgres:12
     ports:
-      - "5433:5433"
+      - "5433:5432"
     env_file:
-        - .env
+      - .env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB_SNIPPET}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - snippetdata:/var/lib/postgresql/data/snippet
+      - snippet:/var/lib/postgresql/data
 
-  permission-service:
-    container_name: "permission-service-infra"
-    image: ghcr.io/ing-sistemas/permission-service:dev
+  snippet-service:
+    container_name: "snippet-service-infra"
+    image: ghcr.io/ing-sistemas/snippet-service:dev-latest
     ports:
-      - "8080:8080"
+      - "8081:8081"
     env_file:
         - .env
+    environment:
+      SNIPPET_DB_HOST: ${SNIPPET_DB_HOST}
+      SNIPPET_PORT: ${SNIPPET_PORT}
+    depends_on:
+      - snippet-db
+      - redis
 
   permission-db:
     container_name: "permission-db-infra"
@@ -37,17 +35,29 @@ services:
     ports:
       - "5432:5432"
     env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${PERMISSION_POSTGRES_DB}
+      POSTGRES_USER: ${PERMISSION_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${PERMISSION_POSTGRES_PASSWORD}
+    volumes:
+      - permission:/var/lib/postgresql/data
+
+  permission-service:
+    container_name: "permission-service-infra"
+    image: ghcr.io/ing-sistemas/permission-service:dev-latest
+    ports:
+      - "8080:8080"
+    env_file:
         - .env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB_PERMISSION}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - permissiondata:/var/lib/postgresql/data/permission
+      PERMISSION_DB_HOST: ${PERMISSION_DB_HOST}
+    depends_on:
+      - permission-db
 
   printscript-service:
     container_name: "printscript-service-infra"
-    image: ghcr.io/ing-sistemas/printscript-service:dev
+    image: ghcr.io/ing-sistemas/printscript-service:dev-latest
     ports:
       - "8082:8082"
     env_file:
@@ -57,9 +67,61 @@ services:
     container_name: "ui-infra"
     image: ghcr.io/ing-sistemas/ui:dev
     ports:
-        - "8083:8083"
+        - "8085:8085"
     env_file:
       - .env
+
+  proxy:
+    container_name: "reverse-proxy"
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./static/:/usr/share/nginx/html:ro
+      - ./conf.d:/etc/nginx/conf.d:ro
+
+
+  azure:
+    container_name: "asset-service-infra"
+    image: ghcr.io/austral-ingsis/snippet-asset-service:latest
+    ports:
+      - "${ASSET_PORT}:${ASSET_PORT}"
+    environment:
+      AZURE_HOST: "http://azurite"
+      NEW_RELIC_APP_NAME: "asset-service"
+      NEW_RELIC_AGENT_ENABLED: false
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: "azurite-infra"
+    hostname: azurite
+    restart: always
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - blob:/workspace
+
+  redis:
+    container_name: "event-bus-infra"
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  snippet:
+  permission:
+  blob:
+    external: false
+#  certbot:
+#    image: certbot/certbot
+#    container_name: certbot
+#    volumes:
+#      - ./certbot/conf:/etc/letsencrypt
+#      - ./certbot/www:/var/www/certbot
+#    command: certonly --webroot -w /var/www/certbot --force-renewal --email {} -d {print-script} --agree-tos
+
 
 #  nginx:
 #    container_name: nginx
@@ -72,24 +134,3 @@ services:
 #      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
 #      - ./certbot/conf:/etc/letsencrypt
 #      - ./certbot/www:/var/www/certbot
-
-  proxy:
-    container_name: "reverse-proxy"
-    image: nginx
-    ports:
-      - "80:80"
-    volumes:
-      - ./static/:/usr/share/nginx/html:ro
-      - ./conf.d:/etc/nginx/conf.d:ro
-
-volumes:
-  pgdata:
-  snippetdata:
-  permissiondata:
-#  certbot:
-#    image: certbot/certbot
-#    container_name: certbot
-#    volumes:
-#      - ./certbot/conf:/etc/letsencrypt
-#      - ./certbot/www:/var/www/certbot
-#    command: certonly --webroot -w /var/www/certbot --force-renewal --email {} -d {print-script} --agree-tos
