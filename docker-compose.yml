@@ -67,7 +67,7 @@ services:
     container_name: "ui-infra"
     image: ghcr.io/ing-sistemas/ui:dev
     ports:
-        - "8085:8085"
+        - "5173:5173"
     env_file:
       - .env
 
@@ -77,8 +77,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./static/:/usr/share/nginx/html:ro
-      - ./conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
 
   azure:
