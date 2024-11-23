@@ -89,6 +89,22 @@ services:
     ports:
       - "6379:6379"
 
+  ui:
+    container_name: "ui-infra"
+    image: ghcr.io/ing-sistemas/ui:dev-latest
+    ports:
+      - "5173:5173"
+    env_file:
+      - .env
+
+  proxy:
+    container_name: "reverse-proxy"
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d:ro
+
 volumes:
   snippet:
   permission:
