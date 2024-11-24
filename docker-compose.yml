@@ -104,6 +104,11 @@ services:
       - "80:80"
     volumes:
       - ./conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - snippet-service
+      - permission-service
+      - printscript-service
+      - ui
 
 volumes:
   snippet:
