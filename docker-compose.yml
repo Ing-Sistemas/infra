@@ -78,8 +78,14 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+#      - ./certbot/conf:/etc/letsencrypt
+#      - ./certbot/www:/var/www/certbot
     depends_on:
       - snippet-service
+      - permission-service
+      - printscript-service
+      - ui
+#      - certbot
 
 
   azure:
@@ -110,28 +116,16 @@ services:
     ports:
       - "6379:6379"
 
-volumes:
-  snippet:
-  permission:
-  blob:
-    external: false
 #  certbot:
 #    image: certbot/certbot
 #    container_name: certbot
 #    volumes:
 #      - ./certbot/conf:/etc/letsencrypt
 #      - ./certbot/www:/var/www/certbot
-#    command: certonly --webroot -w /var/www/certbot --force-renewal --email {} -d {print-script} --agree-tos
+#    command: certonly --webroot -w /var/www/certbot --force-renewal --email felipegermano2004@gmail.com -d print-script --agree-tos
 
-
-#  nginx:
-#    container_name: nginx
-#    restart:
-#    image: nginx
-#    ports:
-#      - 80:80
-#      - 443:443
-#    volumes:
-#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-#      - ./certbot/conf:/etc/letsencrypt
-#      - ./certbot/www:/var/www/certbot
+volumes:
+  snippet:
+  permission:
+  blob:
+    external: false
