@@ -3,7 +3,7 @@ services:
     container_name: "snippet-db-infra"
     image: postgres:12
     ports:
-      - "5433:5432"
+      - "${SNIPPET_DB_PORT}:5432"
     env_file:
       - .env
     environment:
@@ -31,7 +31,7 @@ services:
     container_name: "permission-db-infra"
     image: postgres:12
     ports:
-      - "5432:5432"
+      - "${PERMISSION_DB_PORT}:5432"
     env_file:
       - .env
     environment:
@@ -65,7 +65,7 @@ services:
     container_name: "asset-service-infra"
     image: ghcr.io/austral-ingsis/snippet-asset-service:latest
     ports:
-      - "${ASSET_PORT}:${ASSET_PORT}"
+      - "${ASSET_PORT}:8080"
     environment:
       AZURE_HOST: "http://azurite"
       NEW_RELIC_APP_NAME: "asset-service"
@@ -106,8 +106,6 @@ services:
       - ./conf.d:/etc/nginx/conf.d:ro
     depends_on:
       - snippet-service
-      - permission-service
-      - printscript-service
       - ui
 
 volumes:
