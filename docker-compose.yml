@@ -67,7 +67,7 @@ services:
     container_name: "ui-infra"
     image: ghcr.io/ing-sistemas/ui:dev-latest
     ports:
-        - "5173:5173"
+        - "${UI_PORT}:${UI_PORT}"
     env_file:
       - .env
 
@@ -114,7 +114,7 @@ services:
     container_name: "event-bus-infra"
     image: redis:6-alpine
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:${REDIS_PORT}"
 
 #  certbot:
 #    image: certbot/certbot
