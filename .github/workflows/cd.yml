@@ -1,0 +1,23 @@
+name: "Continuous Deployment"
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy_on_vm:
+    steps:
+      - name: Set up Dev SSH key
+        uses: webfactory/ssh-agent@v0.5.4
+        if: github.ref == 'refs/heads/dev'
+        with:
+          ssh-private-key: ${{ secrets.DEV_KEY  }}
+
+      - name: Deploy to Dev VM
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST_DEV }} \
+          "cd ${{secrets.WORKDIR}} && \
+          docker compose down && \
+          git pull \
+          docker compose up"
