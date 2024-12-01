@@ -6,6 +6,8 @@ on:
 
 jobs:
   deploy_on_vm:
+    name: Deploy on VM
+    runs-on: ubuntu-latest
     steps:
       - name: Set up Dev SSH key
         uses: webfactory/ssh-agent@v0.5.4
