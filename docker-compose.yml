@@ -1,56 +1,131 @@
-services:
-  snippet-service:
-    container_name: "snippet-service-infra"
-    image: ghcr.io/ing-sistemas/snippet-service:dev@sha256:169d40534d303942e67e63a1efe67a603fb8eeac563e6f81b0928e59ea715464
-    ports:
-      - "8081:8081"
-    env_file:
-        - .env
+version: "3.9"
 
+services:
   snippet-db:
     container_name: "snippet-db-infra"
     image: postgres:12
     ports:
-      - "5433:5433"
+      - "${SNIPPET_DB_PORT}:5432"
     env_file:
-        - .env
+      - .env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB_SNIPPET}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - snippet:/var/lib/postgresql/data
 
-  permission-service:
-    container_name: "permission-service-infra"
-    image: ghcr.io/ing-sistemas/permission-service:dev@sha256:235c0ac7e1fcaf357d76ff2dee89f32c805daff99dade1aee0e8e0bbb7b1c419
+  snippet-service:
+    container_name: "snippet-service-infra"
+    image: ghcr.io/ing-sistemas/snippet-service:prod-latest
     ports:
-      - "8080:8080"
+      - "8081:8081"
     env_file:
-        - .env
+      - .env
+    environment:
+      SNIPPET_DB_HOST: ${SNIPPET_DB_HOST}
+      SNIPPET_PORT: ${SNIPPET_PORT}
+    depends_on:
+      - snippet-db
+      - redis
 
   permission-db:
     container_name: "permission-db-infra"
     image: postgres:12
     ports:
-      - "5432:5432"
+      - "${PERMISSION_DB_PORT}:5432"
     env_file:
-        - .env
+      - .env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB_PERMISSION}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${PERMISSION_POSTGRES_DB}
+      POSTGRES_USER: ${PERMISSION_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${PERMISSION_POSTGRES_PASSWORD}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - permission:/var/lib/postgresql/data
+
+  permission-service:
+    container_name: "permission-service-infra"
+    image: ghcr.io/ing-sistemas/permission-service:prod-latest
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      PERMISSION_DB_HOST: ${PERMISSION_DB_HOST}
+    depends_on:
+      - permission-db
 
   printscript-service:
     container_name: "printscript-service-infra"
-    image: ghcr.io/ing-sistemas/printscript-service:dev@sha256:0cdfb14c5d366e0239402ea8c834c282dc07adcc25857a48a1f48c8563403448
+    image: ghcr.io/ing-sistemas/printscript-service:prod-latest
     ports:
       - "8082:8082"
     env_file:
-        - .env
+      - .env
 
+  ui:
+    container_name: "ui-infra"
+    image: ghcr.io/ing-sistemas/ui:prod-latest
+    ports:
+      - "${UI_PORT}:${UI_PORT}"
+    env_file:
+      - .env
+
+  proxy:
+    container_name: "reverse-proxy"
+    image: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - snippet-service
+      - permission-service
+      - printscript-service
+      - ui
+
+
+  azure:
+    container_name: "asset-service-infra"
+    image: ghcr.io/austral-ingsis/snippet-asset-service:latest
+    ports:
+      - "${ASSET_PORT}:8080"
+    environment:
+      AZURE_HOST: "http://azurite"
+      NEW_RELIC_APP_NAME: "asset-service"
+      NEW_RELIC_AGENT_ENABLED: false
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: "azurite-infra"
+    hostname: azurite
+    restart: always
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - blob:/workspace
+
+  redis:
+    container_name: "event-bus-infra"
+    image: redis:6-alpine
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email felipegermano2004@gmail.com -d fantoche.duckdns.org --agree-tos
 
 volumes:
-  pgdata:
+  snippet:
+  permission:
+  blob:
+    external: false
