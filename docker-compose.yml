@@ -122,7 +122,7 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot --force-renewal --email felipegermano2004@gmail.com -d fantoche.duckdns.org --agree-tos
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email felipegermano2004@gmail.com -d fantochetriple.duckdns.org --agree-tos
 
 volumes:
   snippet:
