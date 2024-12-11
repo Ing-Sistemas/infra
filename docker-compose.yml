@@ -120,9 +120,9 @@ services:
     image: certbot/certbot
     container_name: certbot
     volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot --force-renewal --email felipegermano2004@gmail.com -d fantochetriple.duckdns.org --agree-tos
+      - ./certbot/www:/var/www/certbot/:rw
+      - ./certbot/conf:/etc/letsencrypt/:rw
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email nicolasberretta2003@gmail.com -d fantochetriple.duckdns.org --agree-tos
 
 volumes:
   snippet:
