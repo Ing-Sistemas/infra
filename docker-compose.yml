@@ -68,7 +68,7 @@ services:
         - .env
     environment:
       NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
-      NEW_RELIC_APP_NAME: ${NEW_RELIC_APP_NAME_PERMISSION}
+      NEW_RELIC_APP_NAME: ${NEW_RELIC_APP_NAME_PRINTSCRIPT}
 
   ui:
     container_name: "ui-infra"
