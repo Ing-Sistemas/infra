@@ -25,6 +25,8 @@ services:
     environment:
       SNIPPET_DB_HOST: ${SNIPPET_DB_HOST}
       SNIPPET_PORT: ${SNIPPET_PORT}
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY_SNIPPET}
+      NEW_RELIC_APP_NAME: ${NEW_RELIC_APP_NAME_SNIPPET}
     depends_on:
       - snippet-db
       - redis
@@ -52,6 +54,8 @@ services:
       - .env
     environment:
       PERMISSION_DB_HOST: ${PERMISSION_DB_HOST}
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY_PERMISSION}
+      NEW_RELIC_APP_NAME: ${NEW_RELIC_APP_NAME_PERMISSION}
     depends_on:
       - permission-db
 
@@ -62,6 +66,9 @@ services:
       - "8082:8082"
     env_file:
       - .env
+    environment:
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY_PRINTSCRIPT}
+      NEW_RELIC_APP_NAME: ${NEW_RELIC_APP_NAME_PRINTSCRIPT}
 
   ui:
     container_name: "ui-infra"

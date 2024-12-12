@@ -1,25 +1,25 @@
-#name: "Continuous Deployment"
-#on:
-#  push:
-#    branches:
-#      - main
-#
-#jobs:
-#  deploy_on_vm:
-#    name: Deploy on VM
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Set up Prod SSH key
-#        uses: webfactory/ssh-agent@v0.5.4
-#        if: github.ref == 'refs/heads/main'
-#        with:
-#          ssh-private-key: ${{ secrets.PROD_KEY  }}
-#
-#      - name: Deploy to Prod VM
-#        if: github.ref == 'refs/heads/main'
-#        run: |
-#          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST_PROD }} \
-#          "cd ${{secrets.WORKDIR}} && \
-#          docker compose down && \
-#          git pull &&\
-#          docker compose up -d"
+name: "Continuous Deployment"
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_on_vm:
+    name: Deploy on VM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Prod SSH key
+        uses: webfactory/ssh-agent@v0.5.4
+        if: github.ref == 'refs/heads/main'
+        with:
+          ssh-private-key: ${{ secrets.PROD_KEY  }}
+
+      - name: Deploy to Prod VM
+        if: github.ref == 'refs/heads/main'
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST_PROD }} \
+          "cd ${{secrets.WORKDIR}} && \
+          docker compose down && \
+          git pull &&\
+          docker compose up -d"
